@@ -22,5 +22,5 @@ Convert geological ages in taxon-range tables as constructed by mk.sptab() for p
 \examples{
 data(archosauria)
 data(tree_archosauria)
-convert.sptab(archosauria$Coelophysoidea,tree_archosauria)
+convert.sptab(archosauria$sptab_Coelophysoidea,tree_archosauria)
 }

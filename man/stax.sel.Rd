@@ -9,7 +9,7 @@ stax.sel(taxa, rank = x$class, x = NULL)
 \arguments{
 \item{taxa}{A vector containing subtaxa (or any other entries matching entries of rank) to be returned}
 
-\item{rank}{Vector or column of x in which to look for entries matching taxa. defaults to x$class, for selecting class-level subtaxa from large datasets (only works if pdb(...,full=TRUE)}
+\item{rank}{Vector or column of x in which to look for entries matching taxa. defaults to x$class, for selecting class-level subtaxa from large datasets (only works if pdb(...,full=TRUE))}
 
 \item{x}{Optional occurrence data.frame. If set, a data.frame with the selected entries will be returned.}
 }
@@ -20,7 +20,7 @@ If is.null(x) (default), a vector giving the indices of values matching taxa in 
 Extract subsets of an occurrence data.frame.
 }
 \examples{
-pdb("Coelophysoidea",full=TRUE)->coelo
-stax.sel(c("Coelophysis"), rank=coelo$genus,x=coelo)->Coelophysis
-stax.sel(c("Carnian","Norian","Rhaetian"), rank=coelo$early_interval)->triassic_coelophysoids
+data(archosauria)
+archosauria$Stegosauria->stegos
+stax.sel(c("Stegosaurus"), rank=stegos$genus,x=stegos)->Stegosaurus
 }

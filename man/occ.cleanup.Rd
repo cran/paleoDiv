@@ -20,6 +20,6 @@ A character vector containing the cleaned up taxonomic names or a dataframe with
 Clean up occurrence dataset by removing commonly used character combinations in the identified name that will result in different factor levels for the same taxon.
 }
 \examples{
-pdb("Coelophysoidea",full=TRUE)->coelo
-occ.cleanup(coelo)->coelo$tna
+data(archosauria)
+occ.cleanup(archosauria$Stegosauria)->archosauria$Stegosauria
 }

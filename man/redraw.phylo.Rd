@@ -29,7 +29,7 @@ redraw.phylo(
 
 \item{arrow.l}{Length of arrow ends to be used for plotting. Defaults to 0, i.e. no visible arrow.}
 
-\item{arrow.angle}{Angle of arrow ends to be used for plotting. Defaults to 45°.}
+\item{arrow.angle}{Angle of arrow ends to be used for plotting. Defaults to 45 degrees.}
 
 \item{arrow.code}{Arrow code to be used for plotting. For details, see ?arrows}
 

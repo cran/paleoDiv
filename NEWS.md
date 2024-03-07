@@ -1,3 +1,11 @@
+# paleoDiv 0.2.2 (Release date: 2024-03-07)
+==============
+* Fixed behaviour when paleobioDB is unavailable; all datasets for examples and vignette are now included in package data, so this code should run error-free even if website is unavailable.
+
+# paleoDiv 0.2.1 (Release date: 2024-03-06)
+==============
+* changed row numbering of output of synonymize()
+
 # paleoDiv 0.2.0 (Release date: 2024-03-05)
 ==============
 * changed description and documentation

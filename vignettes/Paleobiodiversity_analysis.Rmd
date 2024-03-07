@@ -18,19 +18,25 @@ knitr::opts_chunk$set(
 library(paleoDiv)
 ```
 
-**Basic Workflow of the paleoDiv Package**
+# Basic Workflow of the paleoDiv Package
 
 We can start the analysis by downloading some occurrence data from the Paleobiology Database, in this case for Stegosaurs:
 
-```{r cache=TRUE}
+```{r eval=FALSE}
 pdb("Stegosauria")->Stegosauria
+```
+```{r echo=FALSE}
+data(archosauria) #load the same dataset, but from the data distributed with the package, in case the server is down
+archosauria$Stegosauria->Stegosauria
 ```
 
 The resulting occurrence dataset should look somewhat like this (but with many more rows):
 ```{r}
 knitr::kable(head(Stegosauria))
 ```
-The columns that are of primary interest here are occurrence_no, tna (which at this point is simply a copy of identified_name), eag and lag (which contain the maximum and minimum ages of the occurrence).
+The columns that are of primary interest here are occurrence_no, tna (which at this point is simply a copy of identified_name), eag and lag (which contain the maximum and minimum ages of each occurrence).
+
+## Editing Datasets and Generating Taxon-Range Tables
 
 Since the identified_name/tna column at this point will contain a fair deal of common character combinations leading to an overinflation of unique values (e.g. cf., gen. nov., sp. nov., extra spaces etc), it is recommended to run the following:
 
@@ -42,7 +48,7 @@ This replaces the tna-column with a filtered version, with such common character
 
 If we are interested in analyzing the pattern of paleobiodiversity, our next step in the paleoDiv workflow is to build a taxon-range table, which is simply a data.frame() containing the minimum and maximum ages for each unique factor value in tna (or, if manually modified, any other column or vector). We do this using the mk.sptab() function.
 
-```{r}
+```{r message=FALSE}
 mk.sptab(Stegosauria)->sptab_Stegosauria
 ```
 By default, mk.sptab() takes an occurrence dataset as input and creates a range table containing one row for each unique factor level in the column tna. However, these settings are freely modifiable, making the function applicable to any columns in a data.frame() or even individual vectors containing the maximum and minimum ages and the taxon names (or other category).
@@ -56,13 +62,14 @@ knitr::kable(head(sptab_Stegosauria))
 
 For convenience, the function pdb.autodiv() combines all of these steps into a single function, and can also be used with a vector of several taxon names as input:
 
-```{r include=FALSE}
+```{r include=FALSE, message=FALSE, eval=FALSE}
 pdb.autodiv(c("Stegosauria","Ankylosauria"))->Thyreophora
 ```
 
 This represents the most convenient method of quickly downloading occurrence data and constructing taxon-range tables for multiple clades in the paleoDiv package. The output of pdb.autodiv is a list() object containing multiple data.frames(): one for each occurrence dataset downloaded from the Paleobiology database, and one for each taxon’s taxon-range table, with the prefix "sptab_".
 
-Having generated a taxon-range table, we can now use it to estimate and plot diversity using the function divdistr_():
+## Using PaleobioDB Data to Estimate and Plot Diversity and Abundance
+Having already generated a taxon-range table, we can now use it to estimate and plot diversity using the function divdistr_():
 
 ```{r}
 divdistr_(150,table=sptab_Stegosauria)
@@ -99,8 +106,16 @@ axis(4,at=seq(0,30,5), lab=seq(0,30,5)*4, col.axis="red")
 
 
 If we are interested in how collection intensity/the number of collections compares to taxonomic diversity or abundance, we can use pdb() to download collections data instead of occurrence data:
-```{r cache=TRUE, fig.height=5, fig.width=7}
+```{r eval=FALSE}
 pdb("Stegosauria", what="colls")->Stegosauria_colls
+```
+```{r echo=FALSE}
+data(archosauria) #load the same dataset, but from the data distributed with the package, in case the server is down
+archosauria$Stegosauria_colls->Stegosauria_colls
+```
+
+
+```{r fig.height=5, fig.width=7}
 curve(divdistr_(x,sptab_Stegosauria), xlim=c(200,100),ylim=c(-5,35), lwd=2,xlab="Age [ma]",ylab="Species Diversity Estimate")
 #to add a geological timescale, we can use ts.stages() and ts.periods():
 ts.stages(ylim=c(-6,-1),alpha=0.3,border=add.alpha("grey",0.3))
@@ -111,7 +126,7 @@ curve(abdistr_(x,Stegosauria_colls)/4, xlim=c(200,100),ylim=c(-5,35),col="blue",
 axis(4,at=seq(0,30,5), lab=seq(0,30,5)*4, col.axis="blue")
 ```
 
-
+## Plotting Spindle Diagrams with or without Phylogeny
 For the next examples, a calibrated phylogeny of Archosauria, a matrix used for its calibration and a list() object containing multiple taxon-range tables are provided with the package as example data:
 ```{r}
 data(archosauria)
@@ -127,7 +142,7 @@ ts.periods(tree_archosauria, names=T, alpha=0)
 ```
 
 One of the key functions of paleoDiv is phylo.spindles(), which is optimized for plotting diversity as a spindle-diagram relative to phylogeny:
-```{r fig.height=5, fig.width=7}
+```{r fig.height=7, fig.width=7}
 phylo.spindles(phylo0=tree_archosauria,occ=archosauria,col=add.alpha(ggcol(13)),ages=ages_archosauria,txt.y=.5, dscale=0.005,xlim=c(260,0),axis=F,tbmar=c(1.5,.5),txt.x=c(66,ages_archosauria[2:12,"LAD"],66))
 #add a timescale
 ts.stages(tree_archosauria, ylim=c(-1,0),alpha=0.8)
@@ -147,20 +162,25 @@ mtext(side=3, cex=1.2,"paleoDiv::divdistr_()",col="darkgrey")
 viol(x=c(260:0),stat=divdistr_, pos=13, table=convert.sptab(archosauria$sptab_Aves,tree_archosauria),dscale=0.005, cutoff=tsconv(c(165,0),tree_archosauria),fill=add.alpha("grey40"), col=add.alpha("grey40"))
 ```
 
-Important parameters for phylo.spindles include:
-* phylo0 The phylogeny (or taxa) to be plotted. This should be time-calibrated (e.g. using strap::datePhylo())
-* occ The dataset to be used for plotting. This has to either be a list() containing data.frames to be used as an argument for the function divdistr_() (or any other function it is overridden with) as parameter "table", or a data.frame() or matrix() containing an x column and columns matching the names of the phylogenetic tree’s tip.labels. By default, data.frames in occ are looked for using taxon names (from phylo0) with the prefix "sptab_". If another prefix is desired, this can be changed using the parameter named prefix (see documentation).
-* ages Optional data matrix used for cropping each spindle to the known stratigraphic range of the taxon. If provided, this should take the form of a matrix with row names being the same as the trees tip.labels, and two columns named "FAD" and "LAD" giving minimum and maximum geological ages for each taxon.
-* dscale Vertical scaling parameter for the spindles. May need manual adjustment, depending on the desired scale.
-* txt.x Either a single number of a vector of the same length as the number of tree tips giving the horizontal position for labels (if labels==TRUE). In this case, the second column of ages is used, placing the labels at the end of the spindles, but the first and last values are replaced by 66 in order to place labels within the plot boundaries
-* For further details, see ?phylo.spindles
+### Important parameters for phylo.spindles include:
++ phylo0 The phylogeny (or taxa) to be plotted. This should be time-calibrated (e.g. using strap::datePhylo())
+
++ occ The dataset to be used for plotting. This has to either be a list() containing data.frames to be used as an argument for the function divdistr_() (or any other function it is overridden with) as parameter "table", or a data.frame() or matrix() containing an x column and columns matching the names of the phylogenetic tree’s tip.labels. By default, data.frames in occ are looked for using taxon names (from phylo0) with the prefix "sptab_". If another prefix is desired, this can be changed using the parameter named prefix (see documentation).
+
++ ages Optional data matrix used for cropping each spindle to the known stratigraphic range of the taxon. If provided, this should take the form of a matrix with row names being the same as the trees tip.labels, and two columns named "FAD" and "LAD" giving minimum and maximum geological ages for each taxon.
+
++ dscale Vertical scaling parameter for the spindles. May need manual adjustment, depending on the desired scale.
+
++ txt.x Either a single number of a vector of the same length as the number of tree tips giving the horizontal position for labels (if labels==TRUE). In this case, the second column of ages is used, placing the labels at the end of the spindles, but the first and last values are replaced by 66 in order to place labels within the plot boundaries
+
++ For further details, see ?phylo.spindles
 
 Note that ape::plot.phylo(), which is used by this function for generating the tree, plots trees to a time coordinate counting forward from the root age. As a result, we need to convert all geological ages to this coordinate system by subtracting them from the root age of the phylogeny (facilitated by the tsconv()-function which takes ages and a tree as input).
 
 By replacing occ with a data.frame() or matrix(), we can also use phylo.spindles() to plot a variety of other time series data, such as morphological disparity, abundance, number of occurrences, diversity estimates made using different methods and/or packages, etc.
-As an example, the object diversity_table contains a time series of by-stage diversity estimates for the same taxa made using the divDyn packages (in this case divRT):
+As an example, the object diversity_table contains a time series of by-stage diversity estimates for the same taxa made using divDyn::divDyn (in this case the column divRT):
 
-```{r fig.height=5, fig.width=7}
+```{r fig.height=7, fig.width=7}
 data(diversity_table)
 
 phylo.spindles(tree_archosauria,occ=diversity_table,ages=ages_archosauria,txt.y=.5,xlim=c(260,0),axis=F,dscale=0.01,col=add.alpha(ggcol(13)),tbmar=c(1.5,0.5),txt.x=c(66,ages_archosauria[2:12,"LAD"],66))
@@ -183,7 +203,7 @@ mtext(side=3, cex=1.2,"divDyn::divDyn()$divRT",col="darkgrey")
 
 If desired, phylo.spindles can also be used to plot spindle diagrams without a phylogeny by simply specifying a list of taxa (in occ):
 
-```{r fig.height=5, fig.width=7}
+```{r fig.height=7, fig.width=7}
 phylo.spindles(phylo0=tree_archosauria$tip.label,occ=archosauria,col=add.alpha(ggcol(13)),ages=ages_archosauria,txt.y=.5, dscale=0.005,xlim=c(260,0),axis=F,tbmar=c(1.5,.5),txt.x=c(66,ages_archosauria[2:12,"LAD"],66))
 #add a timescale
 ts.stages(ylim=c(-1,0),alpha=0.8)
@@ -203,7 +223,7 @@ Note how in this case, we are plotting to normal age values, so there is no need
 
 Similarly, we can add phylo.spindles to an already-existing phylogeny (or any other plot) by specifying add=TRUE:
 
-```{r fig.height=5, fig.width=7}
+```{r fig.height=7, fig.width=7}
 ape::plot.phylo(tree_archosauria)
 
 phylo.spindles(phylo0=tree_archosauria,occ=archosauria,col=add.alpha(ggcol(13)),ages=ages_archosauria,txt.y=.5, dscale=0.005,xlim=c(260,0),axis=F,tbmar=c(1.5,.5),txt.x=c(66,ages_archosauria[2:12,"LAD"],66),add=T)

@@ -30,6 +30,6 @@ A data.frame() containing the taxon names, the maximum and minimum age for each 
 Generate a taxon-range table based on an occurrence dataset.
 }
 \examples{
-pdb("Stegosauria")->Stegosauria
-mk.sptab(Stegosauria)->sptab_Stegosauria
+data(archosauria)
+mk.sptab(archosauria$Stegosauria)->sptab_Stegosauria
 }

@@ -24,7 +24,7 @@
 #'
 #' A dataset of stratigraphic ranges of species within the clades in tree_archosauria.
 #'
-#' @format A list() object containing 15 species tables (data.frames) with the following data in each:
+#' @format A list() object containing 2 occurrence data.frames, 1 collections data.frame and 15 species-range tables (all as data.frames) with the following data in each:
 #' \describe{
 #'   \item{tna}{taxon names (species names)}
 #'   \item{max}{maximum ages}

@@ -469,7 +469,7 @@ c(min(lastPP$y.lim),ylim)->ylim
 #' @param lty Line type to be used for redrawing tree edges.
 #' @param lend Style of line ends to be used for redrawing tree edges.
 #' @param arrow.l Length of arrow ends to be used for plotting. Defaults to 0, i.e. no visible arrow.
-#' @param arrow.angle Angle of arrow ends to be used for plotting. Defaults to 45°.
+#' @param arrow.angle Angle of arrow ends to be used for plotting. Defaults to 45 degrees.
 #' @param arrow.code Arrow code to be used for plotting. For details, see ?arrows
 #' @param indices Optional indices which edges to redraw. Can be used to highlight specific edges in different color or style.
 #' @return Plots a timescale on the currently active plot.
@@ -519,37 +519,38 @@ stop("Only phylogram and cladogram supported so far")
 #' @param interval A character string indicating over which temporal interval to download data (defaults to "all"), e.g. "Phanerozoic" or "Jurassic".
 #' @param what  The type of data to download (for details, see https://paleobiodb.org/data1.2/). Defaults to "occs", which downloads occurrence data. Setting this parameter to "colls" will instead download collection data.
 #' @param full A logical indicating whether or not the full dataset is to be downloaded (defaults to FALSE). At the expense of larger file size, the full dataset contains a large number of additional columns containing data such as stratigraphy, phylogeny and (paleo)geography, which is useful for various purposes but not strictly necessary for graphing paleodiversity.
+#' @param base Character string containing base url to use. Defaults to https://paleobiodb.org/data1.2/. Entering "dev" serves as a shortcut to use https://dev.paleobiodb.org/data1.2/ instead (can sometimes be helpful if one of the two is unavailable).
+#' @param file Character string containing which file name to look for. Defaults to list.csv.
 #' @return A data.frame() containing the downloaded paleobioDB dataset. The column "identified_name" will be copied into the column "tna", and (if what==occs) the columns "max_ma" and "min_ma" will be copied into the columns named "eag" and "lag" respectively, maintaining compatibility with the output of the deprecated package "paleobioDB" for those variable names.
 #' @importFrom utils read.csv
 #' @export pdb
 #' @examples
 #' pdb("Stegosauria")->Stegosauria
 
-pdb<-function(taxon, interval="all", what="occs", full=FALSE){
+pdb<-function(taxon, interval="all", what="occs", full=FALSE, base="https://paleobiodb.org/data1.2/",file="list.csv"){
 
-base<-"https://paleobiodb.org/data1.2/"
+if(base=="dev"){base<-"https://dev.paleobiodb.org/data1.2/"}
 
 if(full==TRUE){
-
     if(interval=="all"){
-    pbdb_url <-paste0(base,what,"/list.csv?base_name=",taxon,"&show=full")
+    pbdb_url <-paste0(base,what,"/",file,"?base_name=",taxon,"&show=full")
     }else{
-    pbdb_url <-paste0(base,what,"/list.csv?base_name=",taxon,"&interval=",interval,"&show=full")}
+    pbdb_url <-paste0(base,what,"/",file,"?base_name=",taxon,"&interval=",interval,"&show=full")}
 }else{
     if(interval=="all"){
-    pbdb_url <-paste0(base,what,"/list.csv?base_name=",taxon)
+    pbdb_url <-paste0(base,what,"/",file,"?base_name=",taxon)
     }else{
-    pbdb_url <-paste0(base,what,"/list.csv?base_name=",taxon,"&interval=",interval)}
+    pbdb_url <-paste0(base,what,"/",file,"?base_name=",taxon,"&interval=",interval)}
     }
 
 
 #occ<-read.csv(pbdb_url)
 
 tryCatch({read.csv(pbdb_url)}, error=function(e){
-return(paste("ERROR:", e$message))
+return(paste("error in paleodb query:", e$message))
 
 },warning=function(w){
-return(paste("WARNING:", w$message))
+return(paste("warning in paleodb query:", w$message))
 
 })->occ
 
@@ -566,7 +567,10 @@ return(occ)
 
 }else if(length(occ)==1){
 message(occ)
-if(occ=="ERROR: more columns than column names"){message("This probably means that the taxonomic name you entered (",taxon,") could not be found on paleobiodb.org.")}
+if(occ=="error in paleodb query: more columns than column names"){message("This probably means that the taxonomic name you entered (",taxon,") could not be found on paleobiodb.org.")}
+if(grepl("Timeout",occ) | grepl("502 Bad Gateway",occ)){message("It seems that the server at paleobiodb.org/data1.2/ is not responding at the moment - please try again later.")}
+if(grepl("resolve host name",occ)){message("Please check your internet connection.")}
+
 invisible(occ)
 }
 
@@ -584,8 +588,8 @@ invisible(occ)
 #' @return A data.frame() containing the taxon names, the maximum and minimum age for each taxon, and (optionally) a column with the name of the higher-level taxon.
 #' @export mk.sptab
 #' @examples
-#' pdb("Stegosauria")->Stegosauria
-#' mk.sptab(Stegosauria)->sptab_Stegosauria
+#' data(archosauria)
+#' mk.sptab(archosauria$Stegosauria)->sptab_Stegosauria
 
 
 mk.sptab<-function(xx=NULL,taxa=xx$tna, earliest=xx$eag, latest=xx$lag, tax=NULL){
@@ -660,6 +664,8 @@ table<-data.frame(tna=ids, max=max, min=min, ma=(min+max)/2)
 table[-indices[c(2:length(indices))],]->table
 }
 
+rownames(table)<-c(1:nrow(table))
+
 return(table)
 }
 ##
@@ -674,7 +680,7 @@ return(table)
 #' @param smooth The smoothing margin, in units of ma. Corresponds to the plusminus parameter of rmeana(). Defaults to 0, i.e. no smoothing (beyond the resolution determined by the resolution of x)
 #' @param max Vector or column containing the maximum age of each entry in the taxon-range table. Defaults to table$max
 #' @param min Vector or column containing the minimum age of each entry in the taxon-range table. Defaults to table$min
-#' @details divdistr_() produces a "maximum" estimate of taxonomic diversity at any given point in time in the fossil record. This function is based on the principle of counting the number of taxon ranges (from the privided range table) that overlap each age provided in x. As a result of uncertainty of age estimates, this may lead to an overestimation of the actual fossil diversity at each point in time, especially at the points of overlap between taxon-specific ranges. Moreover this represents a "raw", uncorrected diversity estimate that does not account for differences in sampling intensity throughout the time interval that is investigated. A rudimentary functionality for using such a correction exists in the form of the w argument, which allows the user to provide a vector of weights (of the same length as x) to be multiplied with the raw diversity estimates. Such weights can, for instance, be based on (the inverse of) the number of collections overlapping any given age in x, which can be calculated using the same basic approach as the raw diversity, by downloading collections instead of occurrence data.
+#' @details divdistr_() produces a "maximum" estimate of taxonomic diversity at any given point in time in the fossil record. This function is based on the principle of counting the number of taxon ranges (from the provided range table) that overlap each age provided in x. As a result of uncertainty of age estimates, this may lead to an overestimation of the actual fossil diversity at each point in time, especially at the points of overlap between taxon-specific ranges. Moreover this represents a "raw", uncorrected diversity estimate that does not account for differences in sampling intensity throughout the time interval that is investigated. A rudimentary functionality for using such a correction exists in the form of the w argument, which allows the user to provide a vector of weights (of the same length as x) to be multiplied with the raw diversity estimates. Such weights can, for instance, be based on (the inverse of) the number of collections overlapping any given age in x, which can be calculated using the same basic approach as the raw diversity, by downloading collections instead of occurrence data.
 #' @return A numeric vector containing taxon diversity (at the chosen taxonomic level used in the generation of the range table) at the provided ages.
 #' @export divdistr_
 #' @examples
@@ -713,7 +719,7 @@ return(tmp)
 #'
 #' @param x A numeric vector giving the times (in ma) at which to determine the number of overlapping records.
 #' @param table An occurrence or collection dataset
-#' @param ab.val Abundance value to be used. Default is table$abund_value. If NULL (e.g. because this column doesn’t exist) or NA, each occurrence is treated as representing one specimen
+#' @param ab.val Abundance value to be used. Default is table$abund_value. If NULL (e.g. because this column does not exist) or NA, each occurrence is treated as representing one specimen
 #' @param smooth The smoothing margin, in units of ma. Corresponds to the plusminus parameter of rmeana(). Defaults to 0, i.e. no smoothing (beyond the resolution determined by the resolution of x)
 #' @param max Vector or column containing maximum age of each occurrence or collection
 #' @param min Vector or column containing minimum age of each occurrence or collection
@@ -721,8 +727,8 @@ return(tmp)
 #' @return A numeric vector of the same length as x, giving the estimated number of occurrence records (if ab.val==FALSE) or specimens (if ab.val==TRUE), or the estimated number of collections (if collection data are used instead of occurrences) overlapping each temporal value given in x
 #' @export abdistr_
 #' @examples
-#' pdb("Stegosauria")->Stegosauria
-#' abdistr_(x=c(170:120), table=Stegosauria)
+#' data(archosauria)
+#' abdistr_(x=c(170:120), table=archosauria$Stegosauria)
 
 abdistr_<-function(x, table=NULL, ab.val=table$abund_value, smooth=0, max=table$eag, min=table$lag,w=rep(1,length(x))){
 
@@ -759,34 +765,6 @@ return(tmp)
 ##
 
 
-##Function pdb.diff
-#'Subtract one occurrence data.frame from another, for disentangling overlapping taxonomies or quantifying stem-lineage diversity.
-#'
-#' @param x Occurrence data from which to subtract.
-#' @param subtract Occurrence data frame or vector of occurrence numbers to subtract from x
-#' @param id_col Vector or column of x containing id to be used for determining which values are also found in subtract or subtract$occurrence_no
-#' @return A data.frame() containing the difference between the two occurrence datasets, i.e. all entries that are in x but not in subtract.
-#' @export pdb.diff
-#' @examples
-#' pdb("Stegosauria")->Stegosauria
-#' pdb("Thyreophora")->Thyreophora
-#' pdb.diff(Thyreophora, subtract=Stegosauria)->non_stegosaur_thyreophorans
-
-pdb.diff<-function(x,subtract,id_col=x$occurrence_no){
-
-if(is.data.frame(subtract)){
-drop<-which(id_col %in% subtract$occurrence_no)
-}else{
-drop<-which(id_col %in% subtract)
-}
-if(length(drop>0)){
-message(paste("Dropping", length(drop),"rows from occurrence data frame"))
-x[-drop,]}else{x}
-}
-##
-
-
-
 ##Function pdb.union
 #'Form the union of two occurrence data.frames or remove duplicates from occurrence data.frame. Useful if parts of a clade are not included in the downloaded dataset and need to be added separately.
 #'
@@ -795,9 +773,8 @@ x[-drop,]}else{x}
 #' @return A data.frame() containing the first entry for each unique occurrence to be represented in x.
 #' @export pdb.union
 #' @examples
-#' pdb("Stegosauria")->Stegosauria
-#' pdb("Ankylosauria")->Ankylosauria
-#' pdb.union(rbind(Ankylosauria, Stegosauria))->Eurypoda
+#' data(archosauria)
+#' pdb.union(rbind(archosauria$Ankylosauria, archosauria$Stegosauria))->Eurypoda
 
 pdb.union<-function(x,id_col=x$occurrence_no){
 
@@ -818,18 +795,47 @@ return(x)
 ##
 
 
+
+
+##Function pdb.diff
+#'Subtract one occurrence data.frame from another, for disentangling overlapping taxonomies or quantifying stem-lineage diversity.
+#'
+#' @param x Occurrence data from which to subtract.
+#' @param subtract Occurrence data frame or vector of occurrence numbers to subtract from x
+#' @param id_col Vector or column of x containing id to be used for determining which values are also found in subtract or subtract$occurrence_no
+#' @return A data.frame() containing the difference between the two occurrence datasets, i.e. all entries that are in x but not in subtract.
+#' @export pdb.diff
+#' @examples
+#' data(archosauria)
+#' pdb.union(rbind(archosauria$Ankylosauria, archosauria$Stegosauria))->Eurypoda
+#' pdb.diff(Eurypoda, subtract=archosauria$Stegosauria)
+
+pdb.diff<-function(x,subtract,id_col=x$occurrence_no){
+
+if(is.data.frame(subtract)){
+drop<-which(id_col %in% subtract$occurrence_no)
+}else{
+drop<-which(id_col %in% subtract)
+}
+if(length(drop>0)){
+message(paste("Dropping", length(drop),"rows from occurrence data frame"))
+x[-drop,]}else{x}
+}
+##
+
+
 ##Function stax.sel
 #'Extract subsets of an occurrence data.frame.
 #'
 #' @param taxa A vector containing subtaxa (or any other entries matching entries of rank) to be returned
-#' @param rank Vector or column of x in which to look for entries matching taxa. defaults to x$class, for selecting class-level subtaxa from large datasets (only works if pdb(...,full=TRUE)
+#' @param rank Vector or column of x in which to look for entries matching taxa. defaults to x$class, for selecting class-level subtaxa from large datasets (only works if pdb(...,full=TRUE))
 #' @param x Optional occurrence data.frame. If set, a data.frame with the selected entries will be returned.
 #' @return If is.null(x) (default), a vector giving the indices of values matching taxa in rank. Otherwise, an occurrence data.frame() containing only the selected taxa or values.
 #' @export stax.sel
 #' @examples
-#' pdb("Coelophysoidea",full=TRUE)->coelo
-#' stax.sel(c("Coelophysis"), rank=coelo$genus,x=coelo)->Coelophysis
-#' stax.sel(c("Carnian","Norian","Rhaetian"), rank=coelo$early_interval)->triassic_coelophysoids
+#' data(archosauria)
+#' archosauria$Stegosauria->stegos
+#' stax.sel(c("Stegosaurus"), rank=stegos$genus,x=stegos)->Stegosaurus
 
 stax.sel<-function(taxa, rank=x$class, x=NULL){
 tmp<-numeric()
@@ -857,8 +863,8 @@ return(tmp)}
 #' @importFrom stringr str_replace_all
 #' @export occ.cleanup
 #' @examples
-#' pdb("Coelophysoidea",full=TRUE)->coelo
-#' occ.cleanup(coelo)->coelo$tna
+#' data(archosauria)
+#' occ.cleanup(archosauria$Stegosauria)->archosauria$Stegosauria
 
 occ.cleanup<-function(x,remove=NULL,return.df=FALSE){
 if(is.null(remove)){
@@ -963,7 +969,7 @@ mk.sptab(occ[[treetips[i]]],tax=treetips[i])->occ[[length(treetips)+i]]
 
 names(occ)[length(treetips)+i]<-paste0("sptab_", treetips[i])
 
-}else{#is no data frame is found, don’t build species table
+}else{#is no data frame is found, do not build species table
 message("No occurrence data.frame() found for ", treetips[i], ". Proceeding without it.")}
 }
 
@@ -1051,7 +1057,7 @@ return(ages)
 #' @examples
 #' data(archosauria)
 #' data(tree_archosauria)
-#' convert.sptab(archosauria$Coelophysoidea,tree_archosauria)
+#' convert.sptab(archosauria$sptab_Coelophysoidea,tree_archosauria)
 
 convert.sptab<-function(sptab,tree=NULL,root.time=tree$root.time){
 #which(sptab$max>root.time)->drop
@@ -1161,11 +1167,11 @@ for(i in 1:length(taxsel)){
 ##set spindle limits
 if(!is.null(ages)){#if age data is provided
 
-    if(taxsel[i] %in% rownames(ages)){ #check if tiplabel can be found in rownames
+    if(taxsel[i] %in% rownames(ages)){#check if tiplabel can be found in rownames
     cutoff<-as.numeric(ages[rownames(ages)==taxsel[i],])
     }else{
     warning(paste0(taxsel[i], " not found in rownames(ages). Please make sure that rownames in age data match taxa in phylogeny!"))
-        if(nrow(ages)==length(taxsel)){# … contingency if rownames cannot be matched, but row numbers can:
+        if(nrow(ages)==length(taxsel)){#contingency if rownames cannot be matched, but row numbers can:
         cutoff<-as.numeric(ages[i,])
         }else{
         cutoff<-range(eval(parse(text=paste0("occ$",prefix,taxsel[i]))), phylo0[,2:3])}
@@ -1277,7 +1283,7 @@ axis(1,at=1-(ticks-phylo0$root.time), lab=ticks)}else{axis(1)}
 #' @param prefix Prefix under which to find taxon-range tables in data
 #' @return A data.frame() with two columns: ma, for the numerical age, and tax, for the taxon. 
 #' @details
-#' Each taxon receives one entry per subtaxon (e.g. species) occurring for each time interval at which it occurs. The number of entries per taxon at any given point is thus proportional to the diversity of the taxon, and can be used to trick density functions (e.g. hist(), density()) into plotting diversity diagrams of various types. This is most useful when using ggplot2’s geom_violin(), geom_histogram() or geom_density() functions. 
+#' Each taxon receives one entry per subtaxon (e.g. species) occurring for each time interval at which it occurs. The number of entries per taxon at any given point is thus proportional to the diversity of the taxon, and can be used to trick density functions (e.g. hist(), density()) into plotting diversity diagrams of various types. This is most useful when using ggplot2::geom_violin(), geom_histogram() or geom_density() functions. 
 #' A simpler alternative to achieve a similar result would be to use the taxon-range-tables directly with these functions. However, this will lead to a relative underestimate of diversity for taxa with long-lived subtaxa, since each subtaxon will only be counted once. The div.gg()-function circumvents this problem by representing each taxon for each time interval in which it occurs, i.e. the relative number of entries in the returned data.frame will be proportional to the relative number of taxa with ranges overlapping each point in time.
 #' @export div.gg
 #' @examples
@@ -1320,10 +1326,10 @@ return(dd)
 #' Each taxon receives one entry per occurrence per time interval. The number of entries per taxon at any given point is thus proportional to the abundance of the taxon in the fossil record, and can be used for plotting with frequency- or density-based functions (e.g. hist(), ggplot2::geom_violin(), etc.). Note that using age values in the original occurrence table instead of this function will often be fully sufficient if the number of occurrences is considered an adequate proxy for abundance. However, instead using the ab.gg() and thus visualizing the results of the abdistr_() function has the benefit of the ability to account for a column of abundance values within the occurrence dataset, if available.
 #' @export ab.gg
 #' @examples
-#' pdb.autodiv(c("Coelophysoidea","Stegosauria"))->occ
-#' ab.gg(data=occ, taxa=c("Coelophysoidea","Stegosauria"), agerange=c(252,0),precision_ma=1)->dino
+#' data(archosauria)
+#' ab.gg(data=archosauria, taxa=c("Ankylosauria","Stegosauria"))->thyreophora
 #' library(ggplot2)
-#' ggplot(data=dino, aes(x=tax, y=ma, col=tax))+ylim(252,0)+geom_violin(scale="count")
+#' ggplot(data=thyreophora, aes(x=tax, y=ma, col=tax))+ylim(252,0)+geom_violin(scale="count")
 
 ab.gg<-function(data, taxa=NULL, agerange=c(252,66), precision_ma=1){
 ma<-numeric()

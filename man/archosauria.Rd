@@ -5,7 +5,7 @@
 \alias{archosauria}
 \title{archosauria}
 \format{
-A list() object containing 15 species tables (data.frames) with the following data in each:
+A list() object containing 2 occurrence datasets, 1 collections dataset and 15 species tables (data.frames) with the following data in each:
 \describe{
 \item{tna}{taxon names (species names)}
 \item{max}{maximum ages}

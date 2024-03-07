@@ -4,7 +4,14 @@
 \alias{pdb}
 \title{Download data from the paleobiology database.}
 \usage{
-pdb(taxon, interval = "all", what = "occs", full = FALSE)
+pdb(
+  taxon,
+  interval = "all",
+  what = "occs",
+  full = FALSE,
+  base = "https://paleobiodb.org/data1.2/",
+  file = "list.csv"
+)
 }
 \arguments{
 \item{taxon}{A taxon (base_name) for which to download records.}
@@ -14,6 +21,10 @@ pdb(taxon, interval = "all", what = "occs", full = FALSE)
 \item{what}{The type of data to download (for details, see https://paleobiodb.org/data1.2/). Defaults to "occs", which downloads occurrence data. Setting this parameter to "colls" will instead download collection data.}
 
 \item{full}{A logical indicating whether or not the full dataset is to be downloaded (defaults to FALSE). At the expense of larger file size, the full dataset contains a large number of additional columns containing data such as stratigraphy, phylogeny and (paleo)geography, which is useful for various purposes but not strictly necessary for graphing paleodiversity.}
+
+\item{base}{Character string containing base url to use. Defaults to https://paleobiodb.org/data1.2/. Entering "dev" serves as a shortcut to use https://dev.paleobiodb.org/data1.2/ instead (can sometimes be helpful if one of the two is unavailable).}
+
+\item{file}{Character string containing which file name to look for. Defaults to list.csv.}
 }
 \value{
 A data.frame() containing the downloaded paleobioDB dataset. The column "identified_name" will be copied into the column "tna", and (if what==occs) the columns "max_ma" and "min_ma" will be copied into the columns named "eag" and "lag" respectively, maintaining compatibility with the output of the deprecated package "paleobioDB" for those variable names.

@@ -18,7 +18,6 @@ A data.frame() containing the first entry for each unique occurrence to be repre
 Form the union of two occurrence data.frames or remove duplicates from occurrence data.frame. Useful if parts of a clade are not included in the downloaded dataset and need to be added separately.
 }
 \examples{
-pdb("Stegosauria")->Stegosauria
-pdb("Ankylosauria")->Ankylosauria
-pdb.union(rbind(Ankylosauria, Stegosauria))->Eurypoda
+data(archosauria)
+pdb.union(rbind(archosauria$Ankylosauria, archosauria$Stegosauria))->Eurypoda
 }

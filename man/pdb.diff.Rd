@@ -20,7 +20,7 @@ A data.frame() containing the difference between the two occurrence datasets, i.
 Subtract one occurrence data.frame from another, for disentangling overlapping taxonomies or quantifying stem-lineage diversity.
 }
 \examples{
-pdb("Stegosauria")->Stegosauria
-pdb("Thyreophora")->Thyreophora
-pdb.diff(Thyreophora, subtract=Stegosauria)->non_stegosaur_thyreophorans
+data(archosauria)
+pdb.union(rbind(archosauria$Ankylosauria, archosauria$Stegosauria))->Eurypoda
+pdb.diff(Eurypoda, subtract=archosauria$Stegosauria)
 }
