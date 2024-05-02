@@ -28,6 +28,7 @@ pdb("Stegosauria")->Stegosauria
 ```{r echo=FALSE}
 data(archosauria) #load the same dataset, but from the data distributed with the package, in case the server is down
 archosauria$Stegosauria->Stegosauria
+Stegosauria$identified_name->Stegosauria$tna
 ```
 
 The resulting occurrence dataset should look somewhat like this (but with many more rows):
@@ -62,7 +63,7 @@ knitr::kable(head(sptab_Stegosauria))
 
 For convenience, the function pdb.autodiv() combines all of these steps into a single function, and can also be used with a vector of several taxon names as input:
 
-```{r include=FALSE, message=FALSE, eval=FALSE}
+```{r eval=FALSE}
 pdb.autodiv(c("Stegosauria","Ankylosauria"))->Thyreophora
 ```
 
@@ -100,10 +101,10 @@ curve(divdistr_(x,sptab_Stegosauria), xlim=c(200,100),ylim=c(-5,35), lwd=2,xlab=
 ts.stages(ylim=c(-6,-1),alpha=0.3,border=add.alpha("grey",0.3))
 ts.periods(ylim=c(-6,-1),alpha=0.0)
 
-curve(abdistr_(x,Stegosauria)/4, xlim=c(200,100),ylim=c(-5,35),col="red", lwd=2,lty=2,add=T)
+curve(abdistr_(x,Stegosauria,ab.val=1)/4, xlim=c(200,100),ylim=c(-5,35),col="red", lwd=2,lty=2,add=T)
 axis(4,at=seq(0,30,5), lab=seq(0,30,5)*4, col.axis="red")
 ```
-
+Note that since our dataset does not have a collumn with abundance values for each occurrence, we need to specify ab.val=1 here to treat each occurrence as having the same value. A dataset downloaded using pdb(...,full=T) would have a collumn named abundance_value, which should be specified here instead if available (this is already the standard setting).
 
 If we are interested in how collection intensity/the number of collections compares to taxonomic diversity or abundance, we can use pdb() to download collections data instead of occurrence data:
 ```{r eval=FALSE}
@@ -122,7 +123,7 @@ ts.stages(ylim=c(-6,-1),alpha=0.3,border=add.alpha("grey",0.3))
 ts.periods(ylim=c(-6,-1),alpha=0.0)
 
 #now plot the number of collections alongside the diversity curve
-curve(abdistr_(x,Stegosauria_colls)/4, xlim=c(200,100),ylim=c(-5,35),col="blue", lwd=2,lty=2,add=T)
+curve(abdistr_(x,Stegosauria_colls,ab.val=1)/4, xlim=c(200,100),ylim=c(-5,35),col="blue", lwd=2,lty=2,add=T)
 axis(4,at=seq(0,30,5), lab=seq(0,30,5)*4, col.axis="blue")
 ```
 

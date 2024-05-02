@@ -195,7 +195,7 @@ return(y_)
 #'Generate a violin plot
 #'
 #' @param x Variable for which to plot violin.
-#' @param pos Position at which to place violin in the axis perpendicular to x
+#' @param pos Position at which to place violin in the axis perpendicular to x. Defaults to 0
 #' @param x2 Optional variable to use instead of x as input variable for the violin plot. If x2 is set, the function (default: density()) used to calculate the plotting statistic is run on x2 instead of x, but the results are plotted at the corresponding x values.
 #' @param stat The plotting statistic. Details to the density() function, as in a standard violin plot, but can be overridden with another function that can take x or x2 as its first argument. Stat can also be a numeric vector of the same length as x, in which case the values in this vectors are used instead of the function output and plotted against x as an independent variable.
 #' @param dscale The scale to apply to the values for density (or another plotting statistic). Defaults to 1, but adjustment may be needed depending on the scale of the plot the violin is to be added to.
@@ -221,7 +221,7 @@ return(y_)
 #' viol(c(1:10), width=9, stat=rmean, pos=0, add=FALSE)
 #' viol(c(1:10), stat=c(11:20), pos=0, add=FALSE)
 
-viol<-function(x, pos, x2=NULL, stat=density, dscale=1, cutoff=range(x), horiz=TRUE, add=TRUE,lim=cutoff,xlab="",ylab="", fill="grey", col="black", lwd=1, lty=1,...){
+viol<-function(x, pos=0, x2=NULL, stat=density, dscale=1, cutoff=range(x), horiz=TRUE, add=TRUE,lim=cutoff,xlab="",ylab="", fill="grey", col="black", lwd=1, lty=1,...){
 #sort ascending
 if(!is.null(x2) & is.numeric(x2) & length(x2)==length(x)){
 x2[order(x)]->x2
@@ -308,13 +308,14 @@ tsconv<-function(x,phylo0=NULL,root.time=phylo0$root.time){
 #' @param exclude Character vector listing periods for which to not plot the names, if names==TRUE
 #' @param col.txt Color(s) to use for labels.
 #' @param border Color to use for the border of the timescale
-#' @param ylim Setting for height of the timescale. Can either be one single value, in which case the function attempts to use the lower limit of the currently plotted phylogeny, or a vector of length 2 containing the lower and upper limits of the timescale.
+#' @param ylim Setting for height of the timescale. Can either be one single value giving the height of the timescale, in which case the function attempts to use the lower limit of the current plot as the lower margin, or a vector of length 2 containing the lower and upper limits of the timescale.
 #' @param adj.txt Numeric vector of length==2 giving horizontal and vertical label alignment (defaults to centered, i.e. 0.5 for both values)
 #' @param txt.y Function to use to determine the vertical text position (defaults to mean, i.e. centered) 
 #' @param bw Logical whether to plot in black and white (defaults to FALSE). If TRUE, time scale is drawn with a white background
 #' @param update Character string giving the filename of a .csv table for providing an updated timescale. If provided, the values for plotting the time scale are taken from the csv file instead of the internally provided values. Table must have columns named periods, bottom, top and col, giving the period names, start time in ma, end time in ma and a valid color value, respectively.
 #' @return Plots a timescale on the currently active plot.
 #' @importFrom graphics text
+#' @importFrom graphics par
 #' @importFrom utils read.csv
 #' @importFrom ape plot.phylo
 #' @export ts.periods
@@ -323,7 +324,7 @@ tsconv<-function(x,phylo0=NULL,root.time=phylo0$root.time){
 #' ape::plot.phylo(tree_archosauria)
 #' ts.periods(tree_archosauria, alpha=0.5)
 
-ts.periods <- function(phylo=NULL,alpha=1,names=TRUE,exclude=c("Quarternary"),col.txt=NULL,border=NA,ylim=0.5,adj.txt=c(0.5,0.5),txt.y=mean,bw=FALSE,update=NULL){
+ts.periods <- function(phylo=NULL,alpha=1,names=TRUE,exclude=c("Quarternary"),col.txt=NULL,border=NA,ylim=NULL,adj.txt=c(0.5,0.5),txt.y=mean,bw=FALSE,update=NULL){
   ## Data for geological periods
   
   if(!is.null(update)){
@@ -344,12 +345,18 @@ periods$end<-tsconv(periods$end,phylo)
 
   
   if(is.null(col.txt)){col.txt<-periods$col}#set text color, is unset
-
-if(length(ylim)==1 & !is.null(phylo)){
-lastPP <- get("last_plot.phylo", envir = ape::.PlotPhyloEnv)
-c(min(lastPP$y.lim),ylim)->ylim
-}else if(length(ylim)==1){ylim<-c(0,ylim)}
+#regulate limits
+if(is.null(ylim)){
+ylim <- par("usr")[3:4]
+ylim[2] <- ylim[1]+diff(ylim)/20
+}
   
+if(length(ylim)==1){
+lastPP <- par("usr")[3:4]#get("last_plot.phylo", envir = ape::.PlotPhyloEnv)
+c(min(lastPP),min(lastPP)+ylim)->ylim
+}
+
+#loop through polygons
   for (i in 1:nrow(periods)) {
     if(bw!=TRUE){polygon(
       x=c(periods$start[i], periods$end[i], periods$end[i], periods$start[i]),
@@ -390,13 +397,14 @@ c(min(lastPP$y.lim),ylim)->ylim
 #' @param names Logical indicating whether to plot stage names (defaults to FALSE)
 #' @param col.txt Color(s) to use for labels.
 #' @param border Color to use for the border of the timescale
-#' @param ylim Setting for height of the timescale. Can either be one single value, in which case the function attempts to use the lower limit of the currently plotted phylogeny, or a vector of length 2 containing the lower and upper limits of the timescale.
+#' @param ylim Setting for height of the timescale. Can either be one single value giving the height of the timescale, in which case the function attempts to use the lower limit of the current plot as the lower margin, or a vector of length 2 containing the lower and upper limits of the timescale.
 #' @param adj.txt Numeric vector of length==2 giving horizontal and vertical label alignment (defaults to centered, i.e. 0.5 for both values)
 #' @param txt.y Function to use to determine the vertical text position (defaults to mean, i.e. centered) 
 #' @param bw Logical whether to plot in black and white (defaults to FALSE). If TRUE, time scale is drawn with a white background
 #' @param update Character string giving the filename of a .csv table for providing an updated timescale. If provided, the values for plotting the time scale are taken from the csv file instead of the internally provided values. Table must have columns named stage, bottom, top and col, giving the stage names, start time in ma, end time in ma and a valid color value, respectively.
 #' @return Plots a timescale on the currently active plot.
 #' @importFrom graphics text
+#' @importFrom graphics par
 #' @importFrom utils read.csv
 #' @importFrom ape plot.phylo
 #' @export ts.stages
@@ -407,7 +415,7 @@ c(min(lastPP$y.lim),ylim)->ylim
 #' ts.periods(tree_archosauria, alpha=0)
 
 
-ts.stages <- function(phylo=NULL,alpha=1,names=FALSE,col.txt=NULL,border=NA,ylim=0.5,adj.txt=c(0.5,0.5),txt.y=mean,bw=FALSE,update=NULL){
+ts.stages <- function(phylo=NULL,alpha=1,names=FALSE,col.txt=NULL,border=NA,ylim=NULL,adj.txt=c(0.5,0.5),txt.y=mean,bw=FALSE,update=NULL){
   ##Data for geological periods
   if(!is.null(update)){
   read.csv(update)->ts #use this to manually update time scale
@@ -425,11 +433,23 @@ intervals$end<-tsconv(intervals$end,phylo)
   if(is.null(col.txt)){
     col.txt<-intervals$col}
     
-if(length(ylim)==1 & !is.null(phylo)){
-lastPP <- get("last_plot.phylo", envir = ape::.PlotPhyloEnv)
-c(min(lastPP$y.lim),ylim)->ylim
-}else if(length(ylim)==1){ylim<-c(0,ylim)}
+#if(length(ylim)==1 & !is.null(phylo)){
+#lastPP <- get("last_plot.phylo", envir = ape::.PlotPhyloEnv)
+#c(min(lastPP$y.lim),ylim)->ylim
+#}else if(length(ylim)==1){ylim<-c(0,ylim)}
 
+#regulate limits
+if(is.null(ylim)){
+ylim <- par("usr")[3:4]
+ylim[2] <- ylim[1]+diff(ylim)/20
+}
+  
+if(length(ylim)==1){
+lastPP <- par("usr")[3:4]#get("last_plot.phylo", envir = ape::.PlotPhyloEnv)
+c(min(lastPP),min(lastPP)+ylim)->ylim
+}
+
+#loop through polygons
   for (i in 1:nrow(intervals)) {
     ###
     if(bw!=TRUE){polygon(
@@ -719,7 +739,8 @@ return(tmp)
 #'
 #' @param x A numeric vector giving the times (in ma) at which to determine the number of overlapping records.
 #' @param table An occurrence or collection dataset
-#' @param ab.val Abundance value to be used. Default is table$abund_value. If NULL (e.g. because this column does not exist) or NA, each occurrence is treated as representing one specimen
+#' @param ab.val Abundance value to be used. Default is table$abund_value. If set to 1, each occurrence is treated as representing one specimen. If NULL (e.g. because this column does not exist) or NA, each occurrence is treated as the number of specimens specified under ab.val.na
+#' @param ab.val.na Value to substitute for missing entries in abundance values. Defaults to 1. Either a single numeric or a function to be applied to all non-missing entries of ab.val (e.g. mean()  or median()).
 #' @param smooth The smoothing margin, in units of ma. Corresponds to the plusminus parameter of rmeana(). Defaults to 0, i.e. no smoothing (beyond the resolution determined by the resolution of x)
 #' @param max Vector or column containing maximum age of each occurrence or collection
 #' @param min Vector or column containing minimum age of each occurrence or collection
@@ -730,7 +751,7 @@ return(tmp)
 #' data(archosauria)
 #' abdistr_(x=c(170:120), table=archosauria$Stegosauria)
 
-abdistr_<-function(x, table=NULL, ab.val=table$abund_value, smooth=0, max=table$eag, min=table$lag,w=rep(1,length(x))){
+abdistr_<-function(x, table=NULL, ab.val=table$abund_value,ab.val.na=1, smooth=0, max=table$eag, min=table$lag,w=rep(1,length(x))){
 
     abdistr<-function(x,table=NULL, ab.val=table$abund_value, max=table$eag, min=table$lag){
 
@@ -739,15 +760,20 @@ abdistr_<-function(x, table=NULL, ab.val=table$abund_value, smooth=0, max=table$
 
     if(length(ab.val)>0){
     for(i in 1:length(ab.val)){
-    if(is.na(ab.val[i])){ab.val[i]<-1}
+    if(is.na(ab.val[i])){
+    if(is.numeric(ab.val.na)){
+    ab.val[i]<-ab.val.na
+    }else{
+    ab.val[i]<-ab.val.na(ab.val[!is.na(ab.val)])}
+    }
     }}#make sure that abundance values exist
     
     which(as.numeric(min)<=x)->a
     which(as.numeric(max)>=x)->b
     intersect(a,b)->id
 
-    #sum(ab.val[id], na.rm=TRUE)->abundance
-    length(id)->abundance
+    sum(ab.val[id], na.rm=TRUE)->abundance
+    #length(id)->abundance
     return(abundance)
     }
 
@@ -982,12 +1008,13 @@ return(occ)
 
 
 ##Function tree.ages
-#'Automatically build matrix for time-calibration of phylogenetic trees using occurrence data
+#'Automatically build matrix for time-calibration of phylogenetic trees using occurrence data.
 #'
-#' @param phylo0 (Optional) Object of class=="phylo" from which to draw taxa to include in calibration matrix
+#' @param phylo0 Either an object of class phylo, or a character vector containing taxon names for building the matrix
 #' @param data Optional list()-object containing either taxon-range tables or occurrence datasets for all taxa. If NULL, data will be automatically downloaded via the pdb()-function
-#' @param taxa Taxa to include in calibration matrix, defaults to phylo0$tip.label
+#' @param taxa Deprecated argument; vector containing taxa to include in calibration matrix (can now be provided directly as phylo0)
 #' @return A two-column matrix containing earliest and latest occurrences for each taxon in taxa, with taxon names as row names
+#' @details tree.ages works best for getting occurrence dates for higher-level taxa (genus-level and up) that can be used as a base_name in a call to the paleobiology database and will return NAs for species names (or any other taxon that cannot be found in the paleobiology database or the provided list object). For a function optimized to recover taxon ranges for genera and species, see tree.ages.spp().  It is highly recommended to manually inspect the resulting table for accuracy.
 #' @importFrom utils read.csv
 #' @export tree.ages
 #' @examples
@@ -995,7 +1022,17 @@ return(occ)
 #' data(tree_archosauria)
 #' tree.ages(tree_archosauria,data=archosauria)->ages
 
-tree.ages<-function(phylo0=NULL, data=NULL, taxa=phylo0$tip.label){
+tree.ages<-function(phylo0=NULL, data=NULL, taxa=NULL){
+if(!is.null(taxa)){
+message("The parameter \'taxa\' has been deprecated in paleoDiv v. 0.3.0., you can now directly provide your taxon vector using the phylo0-parameter")
+}
+
+if(inherits(phylo0,"phylo") & is.null(taxa)){#setting for phylogenetic tree
+phylo0$tip.label->taxa
+}else if(is.character(phylo0) & is.null(taxa)){
+taxa<-phylo0
+}
+
 FAD<-numeric(length(taxa))
 LAD<-numeric(length(taxa))
 e<-0
@@ -1016,20 +1053,21 @@ NA->LAD[i]
 }}else{#try to find taxa in list() object
 for(i in 1:length(taxa)){
 
-data[[paste0("sptab_",taxa[i])]][,c("max","min")]->data_#first see if there are species tables
+data[[paste0("sptab_",taxa[i])]][,c("max","min")]->data_#first see if there are taxon-range tables
 
-if(is.null(data_) & !is.null(data[[taxa[i]]])){#if species tables were not found, look for occurrence tables
+if(is.null(data_) & !is.null(data[[taxa[i]]])){#if taxon-range tables were not found, look for occurrence datasets
 data[[taxa[i]]][,c("eag","lag")]->data_
 }
 
-if(is.null(data_)){
-data_<-c(NA,NA)
+if(is.null(data_) | length(data_)==0){
+FAD[i]<-NA
+LAD[i]<-NA
 e<-1
-}
+}else{
 #find and save minimum and maximum recorded taxon ages
 max(data_,na.rm=TRUE)->FAD[i]
 min(data_,na.rm=TRUE)->LAD[i]
-
+}
 }
 }
 
@@ -1043,6 +1081,165 @@ warning("Some occurrence tables could not be found, corresponding collumns conta
 }
 
 return(ages)
+}
+##
+
+##Function tree.ages.spp
+#'Automatically build matrix for time-calibration of phylogenetic trees using occurrence data.
+#'
+#' @param phylo0 Either an object of class phylo, or a character vector containing taxon names for building the matrix
+#' @param data A higher-level taxon name to get data for in the paleobiology database, or a data.frame containing a species table containing entries for the taxa in question.
+#' @return A two-column matrix containing earliest and latest occurrences for each taxon in taxa, with taxon names as row names
+#' @details tree.ages looks for the taxon names in the tna collumn of a taxon-range table (as produced by mk.sptab()), so it will only recover ages for taxa that can be found there. For a function optimized for higher-level taxa that might not be represented in such a table, see tree.ages().  It is highly recommended to manually inspect the resulting table for accuracy.
+#' @importFrom utils read.csv
+#' @export tree.ages.spp
+#' @examples
+#' data(archosauria)
+#' data(tree_archosauria)
+#' tree.ages.spp(tree_archosauria,data=archosauria$sptab_Ornithopoda)->ages
+
+tree.ages.spp<-function(phylo0, data){
+
+ if(is.character(data)){
+ 
+ paleoDiv::pdb.autodiv(data)->dat
+ dat[data]->data
+ do.call(rbind, data)->data
+ if(ncol(data)>1){
+ pdb.union(data)->data
+ mk.sptab(data)->data
+}
+ }
+
+ if(ncol(data)<3){stop("No valid data could be found, perhaps the taxon you entered cannot be found on the paleobiology database.")}
+ if(exists("data$tna") & exists("data$max") & exists("data$min")){stop("No valid data could be found, perhaps the taxon you entered cannot be found on the paleobiology database.")}
+ 
+ if(inherits(phylo0, "phylo")){
+ phylo0$tip.label->tips
+ }else{phylo0->tips}
+ 
+ matrix(nrow=length(tips), ncol=2)->ages
+ colnames(ages)<-c("FAD","LAD")
+ rownames(ages)<-tips
+ 
+ gsub("_"," ", tips)->tips
+ 
+ missing<-character()
+ print(length(missing))
+ 
+ for(i in 1:length(tips)){#loop through taxa and fill in range table
+ #print(tips[i])
+ w<-numeric()
+ if(tips[i]%in%data$tna){
+ which(data$tna==tips[i])->w
+ }else if(length(grep(tips[i], data$tna))>0){
+ grep(tips[i], data$tna)->w
+ }
+ 
+ if(length(w)>0){
+ max(data[w,"max"])->FAD
+ min(data[w,"min"])->LAD
+
+ ages[i,"FAD"]<-FAD
+ ages[i,"LAD"]<-LAD
+ }else{
+ ages[i,"FAD"]<-NA
+ ages[i,"LAD"]<-NA
+  if(length(missing)==0){tips[i]->missing}else{c(missing, tips[i])->missing}
+ } 
+ 
+ }#end loop
+ 
+ if(length(missing)>0){
+  message(length(missing), " taxa could not be found, please complete missing values in age matrix manually!")
+  
+	listout<-function(x,quotes=T){
+if(is.numeric(x)){
+x_<-x[1]
+}else{
+x_<-paste0("'",x[1],"'")}
+
+if(length(x)>1){
+for(i in 2:length(x)){
+if(is.numeric(x)){
+paste0(x_,", ",x[i])->x_
+}else{
+paste0(x_,", ", "'",x[i],"'")->x_}
+}}
+
+if(quotes==F | is.numeric(x)){
+gsub("'","",x_)->x_
+gsub(" ","",x_)->x_
+}
+
+return(x_)
+}
+  
+  message("missing taxa: ",listout(missing))
+  message(length(missing),missing)
+ }
+ 
+ return(ages)
+ }
+ ##
+ 
+##Function tree.age.combine
+#' Combine two calibration matrixes and fill in NA values in one with values from another
+#'
+#' @param ages0 First matrix, NA values in which to replace with values from second matrix
+#' @param ages1 matrix from which to take replacement values
+#' @return A two-column matrix containing earliest and latest occurrences for each taxon in taxa, with taxon names as row names
+#' @details tree.age.combine builds the union of two calibration matrices if some of the values in one of them are NAs. If exact matches for some entries cannot be found, a relaxed search matching only the first word (i.e. usually the genus name) in each taxon name is run, in order to fill in as much of the age matrix as possible with non-NA values. It is highly recommended to manually inspect the resulting table for accuracy.
+#' @importFrom utils read.csv
+#' @export tree.age.combine
+#' @examples
+#' data(archosauria)
+#' data(tree_archosauria)
+#' tree.ages.spp(tree_archosauria,data=archosauria$sptab_Ornithopoda)->ages_A
+#' tree.ages.spp(tree_archosauria,data=archosauria$sptab_Allosauroidea)->ages_B
+#' tree.age.combine(ages_A,ages_B)->ages
+
+tree.age.combine<-function(ages0,ages1){
+
+rownames(ages0)->orownames
+
+gsub("_", " ", rownames(ages0))->rownames(ages0)
+
+for(i in 1:nrow(ages0)){
+
+if(is.na(ages0[i,1])){
+
+which(rownames(ages1)==rownames(ages0)[i])->w
+if(length(w)>0){
+ages1[w,1]->ages0[i,1]
+}else{
+
+which(stringr::word(rownames(ages1),1)==stringr::word(rownames(ages0)[i],1))->w
+if(length(w)>0){
+ages1[w,1]->ages0[i,1]
+}
+}
+}
+
+if(is.na(ages0[i,2])){
+which(rownames(ages1)==rownames(ages0)[i])->w
+if(length(w)>0){
+ages1[w,2]->ages0[i,2]
+}else{
+which(stringr::word(rownames(ages1),1)==stringr::word(rownames(ages0)[i],1))->w
+if(length(w)>0){
+ages1[w,2]->ages0[i,2]
+}
+}
+}
+
+
+}
+
+rownames(ages0)<-orownames
+
+return(ages0)
+
 }
 ##
 
@@ -1080,6 +1277,7 @@ return(sptab_)
 #' @param occ Either a list()-object containing taxon-range tables for plotting diversity, or a matrix() or data.frame()-object that contains numerical plotting statistics. If the latter is provided, the default use of divdistr_() is overridden and the function will look for a column named "x" and columns matching the phylogeny tip.labels to plot the spindles.
 #' @param stat Plotting statistic to be passed on to viol(). Defaults to use divdistr_().
 #' @param prefix Prefix for taxon-range tables in occ. Defaults to "sptab_"
+#' @param pos Position at which to draw spindles. If NULL (default), then spindles are drawn at c(1:n) where n is the number of taxa in phylo0.
 #' @param ages Optional matrix with lower and upper age limits for each spindle, formatted like the output of tree.ages() (most commonly the same calibration matrix used to time-calibrate the tree)
 #' @param xlimits Limits for plotting the on the x axis.
 #' @param res Temporal resolution of diversity estimation (if occ is a matrix or data.frame containing plotting statistics, this is ignored)
@@ -1095,9 +1293,11 @@ return(sptab_)
 #' @param labels Logical indicating whether to plot tip labels of phylogeny (defaults to TRUE)
 #' @param txt.y y axis alignment of tip labels
 #' @param txt.x x coordinates for plotting tip labels. Can be a single value applicable to all labels, or a vector of the same length as phylo0$tip.label
+#' @param adj.x Numeric value giving alignment on x axis, defaults to 0 (left-aligned) but can also be 0.5 (centered) or 1 (right-aligned).
 #' @param add Logical indicating whether to add to an existing plot, in which case only the spindles are plotted on top of an existing phylogeny, or not, in which case the phylogeny is plotted along with the spindles.
 #' @param tbmar Top and bottom margin around the plot. Numeric of either length 1 or 2
 #' @param smooth Smoothing parameter to be passed on to divdistr_()
+#' @param italicize Character or numeric vector specifying which labels to italicize, if any.
 #' @return A plotted phylogeny with spindle diagrams plotted at each of its terminal branches.
 #' @details
 #' The phylo.spindles() function allows the plotting of a phylogeny with spindle diagrams at each of its terminal branches. Various data can be represented (e.g. disparity, abundance, various diversity measures, such as those output by the divDyn package, etc.) depending on the settings for occ and stat, but the function is optimized to plot the results of divdistr_() and does so by default.
@@ -1112,7 +1312,7 @@ return(sptab_)
 #' phylo.spindles(tree_archosauria,occ=archosauria,dscale=0.005,ages=ages_archosauria,txt.x=66)
 #' phylo.spindles(tree_archosauria,occ=diversity_table,dscale=0.005,ages=ages_archosauria,txt.x=66)
 
-phylo.spindles<-function(phylo0, occ, stat=divdistr_, prefix="sptab_", ages=NULL, xlimits=NULL, res=1, weights=1, dscale=0.002, col=add.alpha("black"), fill=col,lwd=1, lty=1, cex.txt=1,col.txt=add.alpha(col,1), axis=TRUE, labels=TRUE, txt.y=0.5,txt.x=NULL, add=FALSE,tbmar=0.2,smooth=0){
+phylo.spindles<-function(phylo0, occ, stat=divdistr_, prefix="sptab_", pos=NULL,ages=NULL, xlimits=NULL, res=1, weights=1, dscale=0.002, col=add.alpha("black"), fill=col,lwd=1, lty=1, cex.txt=1,col.txt=add.alpha(col,1), axis=TRUE, labels=TRUE, txt.y=0.5,txt.x=NULL,adj.x=0, add=FALSE,tbmar=0.2,smooth=0,italicize=character()){
 
 if(length(tbmar)==1){tbmar<-rep(tbmar,2)}#if only one value is given for tbmar, duplicate it. Otherwise, first value is bottom, second top
 if(inherits(phylo0,"phylo")){#setting for phylogenetic tree
@@ -1121,14 +1321,38 @@ txt.x<-phylo0$root.time-txt.x
 if(is.null(xlimits)){
 xlimits<-c(round(phylo0$root.time)-1,0)}
 
-}else if(is.character(phylo0)){taxsel<-phylo0#settings for taxonomic list
+}else if(is.character(phylo0)){
+taxsel<-phylo0#settings for taxonomic list
 if(!is.null(ages) & is.null(xlimits)){
 xlimits<-rev(range(ages))}
 
 }else{stop("phylo0 must be either a phylogenetic tree of a character vector containing taxon names.")}
 
-if(is.null(txt.x)){txt.x<-mean(xlimits)}
+#set y positions at which to plot, if unspecified
+if(is.null(pos)){
+pos<-c(1:length(taxsel))
+}
+if(length(pos)<length(taxsel)){
+pos<-c(1:length(taxsel))
+}
 
+
+if(labels==TRUE){#set plot info for labels
+
+if(length(txt.y)<length(taxsel)){
+if(is.null(txt.y)){txt.y<-0.5}
+txt.y<-rep(txt.y, length(taxsel))[1:length(taxsel)]
+}#repeat text y alignment
+if(length(txt.x)<length(taxsel)){
+if(is.null(txt.x)){txt.x<-mean(xlimits)}
+txt.x<-rep(txt.x, length(taxsel))[1:length(taxsel)]
+}#repeat text x coordingates
+if(length(adj.x)<length(taxsel)){
+if(is.null(adj.x)){adj.x<-0}
+adj.x<-rep(adj.x,length(taxsel))[1:length(taxsel)]
+}#set y axis adjustment, if unspecified
+
+}
 
 
 ##generate base plot
@@ -1138,7 +1362,7 @@ if(inherits(phylo0,"phylo")){
 ape::plot.phylo(phylo0,x.lim=-1*(xlimits-phylo0$root.time),align.tip.label=2, label.offset=50,show.tip.label=FALSE, y.lim=c(1-tbmar[1],length(phylo0$tip.label)+tbmar[2]))->plot1
 
 }else{
-plot(NULL, xlim=xlimits,ylim=c(1-tbmar[1], length(taxsel)+tbmar[2]), xlab="",ylab="",axes=FALSE)
+plot(NULL, xlim=xlimits,ylim=c(min(pos)-tbmar[1], max(pos)+tbmar[2]), xlab="",ylab="",axes=FALSE)
 plot1<-NULL
 }
 }else{#if add==FALSE
@@ -1152,10 +1376,20 @@ if(is.null(plot1)){
 plot1$x.lim<-xlimits
 }
 
-#colors
+#repeat colors into vectors, if needed
 col->col_
+if(length(col_)<length(taxsel)){
+col_<-rep(col_,length(taxsel))[1:length(taxsel)]
+}
+
 fill->fill_
+if(length(fill_)<length(taxsel)){
+fill_<-rep(fill_,length(taxsel))[1:length(taxsel)]
+}
 col.txt->col.txt_
+if(length(col.txt_)<length(taxsel)){
+col.txt_<-rep(col.txt_,length(taxsel))[1:length(taxsel)]
+}
 
 #repeat weights
 if(length(weights)==1){
@@ -1174,31 +1408,29 @@ if(!is.null(ages)){#if age data is provided
         if(nrow(ages)==length(taxsel)){#contingency if rownames cannot be matched, but row numbers can:
         cutoff<-as.numeric(ages[i,])
         }else{
-        cutoff<-range(eval(parse(text=paste0("occ$",prefix,taxsel[i]))), phylo0[,2:3])}
+        cutoff<-range(eval(parse(text=paste0("occ$",prefix,taxsel[i])))[,2:3])}
         }
-}else{#use range of data if no validly formatted ages are provided
-cutoff<-range(eval(parse(text=paste0("occ$",prefix,taxsel[i]))), phylo0[,c("max","min")])###XXX
 }
 
-if(inherits(phylo0,"phylo")){phylo0$root.time-cutoff->cutoff}
-#end spindle limits
+if(inherits(phylo0,"phylo") & exists("cutoff")){phylo0$root.time-cutoff->cutoff}#convert cutoffs to phylo plotting space, if needed
+#end setting of spindle limits
 
 
-##vary colors, if desired
-if(length(col_)==length(taxsel)){
+##vary colors
+#if(length(col_)>=length(taxsel)){
 col<-col_[i]
-}
-if(length(fill_)==length(taxsel)){
+#}
+#if(length(fill_)>=length(taxsel)){
 fill<-fill_[i]
-}
-if(length(col.txt_)==length(taxsel)){
+#}
+#if(length(col.txt_)>=length(taxsel)){
 col.txt<-col.txt_[i]
-}
+#}
 
 #set weights
 if(is.matrix(weights)){
 w<-weights[,i]
-}else if(length(weights)==length(seq(min(plot1$x.lim),max(plot1$x.lim),abs(res)))){
+}else{ #if(length(weights)==length(seq(min(plot1$x.lim),max(plot1$x.lim),abs(res)))){
 w<-weights
 }
 
@@ -1206,7 +1438,7 @@ if(length(w)!=length(seq(min(plot1$x.lim),max(plot1$x.lim),abs(res)))){stop("wei
 
 #prepare data for plotting
 
-if(!is.matrix(occ) & !is.data.frame(occ)){
+if(!is.matrix(occ) & !is.data.frame(occ)){## if list of multiple dataframes is given, convert data.frame for use with divdistr_() or abdistr_()
 
 itable<-occ[[paste0(prefix,taxsel[i])]]
 
@@ -1226,38 +1458,38 @@ plotx<-seq(min(plot1$x.lim),max(plot1$x.lim),abs(res))
 if(plot1$x.lim[1]>plot1$x.lim[2] & res>0){res<--res}
 plotx<-seq(plot1$x.lim[1],plot1$x.lim[2],res)}#set sequence of x values at which to plot, depending on plotting direction
 #plot spindles
-viol(plotx,pos=i, stat=stat, table=itable, smooth=smooth, dscale=dscale, col=col, fill=fill, lwd=lwd,lty=lty,cutoff=cutoff,w=w)
 
+if(exists("cutoff")){
+viol(plotx,pos=pos[i], stat=stat, table=itable, smooth=smooth, dscale=dscale, col=col, fill=fill, lwd=lwd,lty=lty,cutoff=cutoff,w=w)}else{
+viol(plotx,pos=pos[i], stat=stat, table=itable, smooth=smooth, dscale=dscale, col=col, fill=fill, lwd=lwd,lty=lty,w=w)} #plot with cutoff values if set, viol default if not
 
-}else if(is.matrix(occ) | is.data.frame(occ)){#if instead of a list object, a dataframe is given giving x and diversity values to plot (can also be co-opted to plot any other values, e.g. disparity
+}else if(is.matrix(occ) | is.data.frame(occ)){##if instead of a list object, a dataframe is given giving x and diversity values to plot (can also be co-opted to plot any other values, e.g. disparity
 if(!("x" %in% colnames(occ))){stop("if occ is a data.frame() or matrix(), it needs to have a column giving x values for plotting with column name == x")
 }
 if(taxsel[i] %in% colnames(occ)){
-
-viol(occ[,"x"], pos=i, stat=occ[,taxsel[i]], dscale=dscale, col=col, fill=fill, lwd=lwd,lty=lty, cutoff=cutoff, w=w)
+if(exists("cutoff")){
+viol(occ[,"x"], pos=pos[i], stat=occ[,taxsel[i]], dscale=dscale, col=col, fill=fill, lwd=lwd,lty=lty, cutoff=cutoff, w=w)}else{
+viol(occ[,"x"], pos=pos[i], stat=occ[,taxsel[i]], dscale=dscale, col=col, fill=fill, lwd=lwd,lty=lty, w=w)} #plot with cutoff values if set, viol default if not
 }
 
 }
 
-#convert coordinates if phylogeny is being plotted
-if(inherits(phylo0,"phylo")){
-
-}
+#if(inherits(phylo0,"phylo")){}#coordinate conversion if phylo object is being plotted
 
 if(labels==TRUE){#add labels
-if(length(txt.y)==1){txt.y<-rep(txt.y, length(taxsel))}
 
-if(length(txt.x)>1){#if a vector of x values for labels is provided
+
     if(length(which(names(txt.x)==taxsel[i]))==1){
-    which(names(txt.x)==taxsel[i])->j
-    text(x=txt.x[j],y=i,adj=c(0,txt.y[i]), taxsel[i], cex=cex.txt,col=col.txt)
-    }else{
-    text(x=txt.x[i],y=i,adj=c(0,txt.y[i]), taxsel[i], cex=cex.txt,col=col.txt)}
-}else{
-text(x=txt.x,y=i,adj=c(0,txt.y[i]), taxsel[i], cex=cex.txt,col=col.txt)}
-}
+    which(names(txt.x)==taxsel[i])->j    
+    }else{j<-i}
+    
+    if(taxsel[i] %in% italicize | i %in% italicize){
+    text(x=txt.x[j],y=pos[i],adj=c(adj.x[i],txt.y[i]), bquote(italic(.(taxsel[i]))), cex=cex.txt,col=col.txt)
+    }else{text(x=txt.x[j],y=pos[i],adj=c(adj.x[i],txt.y[i]), taxsel[i], cex=cex.txt,col=col.txt)}
+    
+}#end labels
 
-}#end loop
+}##end loop through taxa
 
 
 if(axis==TRUE){#add time axis
@@ -1270,7 +1502,6 @@ axis(1,at=1-(ticks-phylo0$root.time), lab=ticks)}else{axis(1)}
 
 }
 ##
-
 
 
 ##Function div.gg

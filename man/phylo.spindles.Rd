@@ -9,6 +9,7 @@ phylo.spindles(
   occ,
   stat = divdistr_,
   prefix = "sptab_",
+  pos = NULL,
   ages = NULL,
   xlimits = NULL,
   res = 1,
@@ -24,9 +25,11 @@ phylo.spindles(
   labels = TRUE,
   txt.y = 0.5,
   txt.x = NULL,
+  adj.x = 0,
   add = FALSE,
   tbmar = 0.2,
-  smooth = 0
+  smooth = 0,
+  italicize = character()
 )
 }
 \arguments{
@@ -37,6 +40,8 @@ phylo.spindles(
 \item{stat}{Plotting statistic to be passed on to viol(). Defaults to use divdistr_().}
 
 \item{prefix}{Prefix for taxon-range tables in occ. Defaults to "sptab_"}
+
+\item{pos}{Position at which to draw spindles. If NULL (default), then spindles are drawn at c(1:n) where n is the number of taxa in phylo0.}
 
 \item{ages}{Optional matrix with lower and upper age limits for each spindle, formatted like the output of tree.ages() (most commonly the same calibration matrix used to time-calibrate the tree)}
 
@@ -68,11 +73,15 @@ phylo.spindles(
 
 \item{txt.x}{x coordinates for plotting tip labels. Can be a single value applicable to all labels, or a vector of the same length as phylo0$tip.label}
 
+\item{adj.x}{Numeric value giving alignment on x axis, defaults to 0 (left-aligned) but can also be 0.5 (centered) or 1 (right-aligned).}
+
 \item{add}{Logical indicating whether to add to an existing plot, in which case only the spindles are plotted on top of an existing phylogeny, or not, in which case the phylogeny is plotted along with the spindles.}
 
 \item{tbmar}{Top and bottom margin around the plot. Numeric of either length 1 or 2}
 
 \item{smooth}{Smoothing parameter to be passed on to divdistr_()}
+
+\item{italicize}{Character or numeric vector specifying which labels to italicize, if any.}
 }
 \value{
 A plotted phylogeny with spindle diagrams plotted at each of its terminal branches.

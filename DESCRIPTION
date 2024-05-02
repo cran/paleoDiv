@@ -1,6 +1,6 @@
 Package: paleoDiv
 Title: Extracting and Visualizing Paleobiodiversity
-Version: 0.2.2
+Version: 0.3.0
 Authors@R: 
     person("Darius", "Nau", , "dariusnau@gmx.at", role = c("aut", "cre"))
 Description: Contains various tools for conveniently downloading and editing taxon-specific datasets from the Paleobiology Database <https://paleobiodb.org>, extracting information on abundance, temporal distribution of subtaxa and taxonomic diversity through deep time, and visualizing these data in relation to phylogeny and stratigraphy.
@@ -13,8 +13,8 @@ Depends: R (>= 2.10), ape, stringr
 LazyData: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-03-07 19:49:11 UTC; suirad
+Packaged: 2024-05-02 10:16:57 UTC; suirad
 Author: Darius Nau [aut, cre]
 Maintainer: Darius Nau <dariusnau@gmx.at>
 Repository: CRAN
-Date/Publication: 2024-03-07 23:00:02 UTC
+Date/Publication: 2024-05-02 11:32:42 UTC

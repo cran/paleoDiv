@@ -6,7 +6,7 @@
 \usage{
 viol(
   x,
-  pos,
+  pos = 0,
   x2 = NULL,
   stat = density,
   dscale = 1,
@@ -26,7 +26,7 @@ viol(
 \arguments{
 \item{x}{Variable for which to plot violin.}
 
-\item{pos}{Position at which to place violin in the axis perpendicular to x}
+\item{pos}{Position at which to place violin in the axis perpendicular to x. Defaults to 0}
 
 \item{x2}{Optional variable to use instead of x as input variable for the violin plot. If x2 is set, the function (default: density()) used to calculate the plotting statistic is run on x2 instead of x, but the results are plotted at the corresponding x values.}
 

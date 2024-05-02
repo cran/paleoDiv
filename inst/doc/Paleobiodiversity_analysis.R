@@ -13,6 +13,7 @@ library(paleoDiv)
 ## ----echo=FALSE---------------------------------------------------------------
 data(archosauria) #load the same dataset, but from the data distributed with the package, in case the server is down
 archosauria$Stegosauria->Stegosauria
+Stegosauria$identified_name->Stegosauria$tna
 
 ## -----------------------------------------------------------------------------
 knitr::kable(head(Stegosauria))
@@ -26,7 +27,7 @@ mk.sptab(Stegosauria)->sptab_Stegosauria
 ## ----echo=FALSE---------------------------------------------------------------
 knitr::kable(head(sptab_Stegosauria))
 
-## ----include=FALSE, message=FALSE, eval=FALSE---------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  pdb.autodiv(c("Stegosauria","Ankylosauria"))->Thyreophora
 
 ## -----------------------------------------------------------------------------
@@ -50,7 +51,7 @@ curve(divdistr_(x,sptab_Stegosauria), xlim=c(200,100),ylim=c(-5,35), lwd=2,xlab=
 ts.stages(ylim=c(-6,-1),alpha=0.3,border=add.alpha("grey",0.3))
 ts.periods(ylim=c(-6,-1),alpha=0.0)
 
-curve(abdistr_(x,Stegosauria)/4, xlim=c(200,100),ylim=c(-5,35),col="red", lwd=2,lty=2,add=T)
+curve(abdistr_(x,Stegosauria,ab.val=1)/4, xlim=c(200,100),ylim=c(-5,35),col="red", lwd=2,lty=2,add=T)
 axis(4,at=seq(0,30,5), lab=seq(0,30,5)*4, col.axis="red")
 
 ## ----eval=FALSE---------------------------------------------------------------
@@ -67,7 +68,7 @@ ts.stages(ylim=c(-6,-1),alpha=0.3,border=add.alpha("grey",0.3))
 ts.periods(ylim=c(-6,-1),alpha=0.0)
 
 #now plot the number of collections alongside the diversity curve
-curve(abdistr_(x,Stegosauria_colls)/4, xlim=c(200,100),ylim=c(-5,35),col="blue", lwd=2,lty=2,add=T)
+curve(abdistr_(x,Stegosauria_colls,ab.val=1)/4, xlim=c(200,100),ylim=c(-5,35),col="blue", lwd=2,lty=2,add=T)
 axis(4,at=seq(0,30,5), lab=seq(0,30,5)*4, col.axis="blue")
 
 ## -----------------------------------------------------------------------------

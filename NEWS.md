@@ -1,3 +1,25 @@
+# paleoDiv 0.3.0 (Release date: 2024-05-02)
+* added two new functions, tree.ages.spp() and tree.age.combine() to facilitate building matrices for time calibration of phylogenies
+
+# paleoDiv 0.2.6 (Release date: 2024-04-05)
+* improved automatic dimension settings for ts.periods() and ts.stages()
+
+# paleoDiv 0.2.5 (Release date: 2024-03-24)
+* added parameter 'italicize' to phylo.spindles, allowing automatic italicization of taxa given as indices or taxon names
+* improved color vector handling by phylo.spindles (colour vectors that are too short or long are now cycled or abridged automatically)
+
+# paleoDiv 0.2.4 (Release date: 2024-03-23)
+* added better customizability for phylo.spindles
+    Two new parameters for controlling y locations for plotting and text x alignment
+* standard value 0 for pos parameter of viol
+* fixed bug in setting of cutoff values if no ages are provided
+* fixed abdistr_() function; previous version erraneously failed to take into account the ab.val data in the calculation of abundance because of a forgotten # sign
+* improved handling of spindle limits in phylo.spindles (cutoff variable) if no age data are provided
+
+# paleoDiv 0.2.3 (Release date: 2024-03-08)
+==============
+* fixed vignette
+
 # paleoDiv 0.2.2 (Release date: 2024-03-07)
 ==============
 * Fixed behaviour when paleobioDB is unavailable; all datasets for examples and vignette are now included in package data, so this code should run error-free even if website is unavailable.

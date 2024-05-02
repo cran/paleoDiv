@@ -2,22 +2,25 @@
 % Please edit documentation in R/paleoDiv.R
 \name{tree.ages}
 \alias{tree.ages}
-\title{Automatically build matrix for time-calibration of phylogenetic trees using occurrence data}
+\title{Automatically build matrix for time-calibration of phylogenetic trees using occurrence data.}
 \usage{
-tree.ages(phylo0 = NULL, data = NULL, taxa = phylo0$tip.label)
+tree.ages(phylo0 = NULL, data = NULL, taxa = NULL)
 }
 \arguments{
-\item{phylo0}{(Optional) Object of class=="phylo" from which to draw taxa to include in calibration matrix}
+\item{phylo0}{Either an object of class phylo, or a character vector containing taxon names for building the matrix}
 
 \item{data}{Optional list()-object containing either taxon-range tables or occurrence datasets for all taxa. If NULL, data will be automatically downloaded via the pdb()-function}
 
-\item{taxa}{Taxa to include in calibration matrix, defaults to phylo0$tip.label}
+\item{taxa}{Deprecated argument; vector containing taxa to include in calibration matrix (can now be provided directly as phylo0)}
 }
 \value{
 A two-column matrix containing earliest and latest occurrences for each taxon in taxa, with taxon names as row names
 }
 \description{
-Automatically build matrix for time-calibration of phylogenetic trees using occurrence data
+Automatically build matrix for time-calibration of phylogenetic trees using occurrence data.
+}
+\details{
+tree.ages works best for getting occurrence dates for higher-level taxa (genus-level and up) that can be used as a base_name in a call to the paleobiology database and will return NAs for species names (or any other taxon that cannot be found in the paleobiology database or the provided list object). For a function optimized to recover taxon ranges for genera and species, see tree.ages.spp().  It is highly recommended to manually inspect the resulting table for accuracy.
 }
 \examples{
 data(archosauria)

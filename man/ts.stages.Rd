@@ -10,7 +10,7 @@ ts.stages(
   names = FALSE,
   col.txt = NULL,
   border = NA,
-  ylim = 0.5,
+  ylim = NULL,
   adj.txt = c(0.5, 0.5),
   txt.y = mean,
   bw = FALSE,
@@ -28,7 +28,7 @@ ts.stages(
 
 \item{border}{Color to use for the border of the timescale}
 
-\item{ylim}{Setting for height of the timescale. Can either be one single value, in which case the function attempts to use the lower limit of the currently plotted phylogeny, or a vector of length 2 containing the lower and upper limits of the timescale.}
+\item{ylim}{Setting for height of the timescale. Can either be one single value giving the height of the timescale, in which case the function attempts to use the lower limit of the current plot as the lower margin, or a vector of length 2 containing the lower and upper limits of the timescale.}
 
 \item{adj.txt}{Numeric vector of length==2 giving horizontal and vertical label alignment (defaults to centered, i.e. 0.5 for both values)}
 
