@@ -4,7 +4,7 @@
 \alias{pdb.autodiv}
 \title{A wrapper around pdb(), occ.cleanup() and mk.sptab() to automatically download and clean occurrence data from the paleobiology database and build species-level taxon-range tables for multiple taxa in one step.}
 \usage{
-pdb.autodiv(taxa, cleanup = TRUE, interval = NULL)
+pdb.autodiv(taxa, cleanup = TRUE, interval = NULL, ...)
 }
 \arguments{
 \item{taxa}{Either a character vector of valid taxonomic names, or an object of class "phylo" whose tip.labels to use instead.}
@@ -12,6 +12,8 @@ pdb.autodiv(taxa, cleanup = TRUE, interval = NULL)
 \item{cleanup}{Logical indicating whether to apply occ.cleanup() to occurrence data after download (defaults to TRUE)}
 
 \item{interval}{Stratigraphic interval for which to download data (defaults to NULL, which downloads data for all intervals)}
+
+\item{...}{additional arguments to be passed on to pdb()}
 }
 \value{
 A list() object containing occurrence data (saved under the taxon names given) and species-level taxon-range tables (saved with the prefix "sptab_" before the taxon names).

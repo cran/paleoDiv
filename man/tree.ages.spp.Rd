@@ -18,7 +18,7 @@ A two-column matrix containing earliest and latest occurrences for each taxon in
 Automatically build matrix for time-calibration of phylogenetic trees using occurrence data.
 }
 \details{
-tree.ages looks for the taxon names in the tna collumn of a taxon-range table (as produced by mk.sptab()), so it will only recover ages for taxa that can be found there. For a function optimized for higher-level taxa that might not be represented in such a table, see tree.ages().  It is highly recommended to manually inspect the resulting table for accuracy.
+tree.ages looks for the taxon names in the tna column of a taxon-range table (as produced by mk.sptab()), so it will only recover ages for taxa that can be found there. For a function optimized for higher-level taxa that might not be represented in such a table, see tree.ages().  It is highly recommended to manually inspect the resulting table for accuracy.
 }
 \examples{
 data(archosauria)

@@ -12,6 +12,7 @@ phylo.spindles(
   pos = NULL,
   ages = NULL,
   xlimits = NULL,
+  ylimits = NULL,
   res = 1,
   weights = 1,
   dscale = 0.002,
@@ -25,7 +26,7 @@ phylo.spindles(
   labels = TRUE,
   txt.y = 0.5,
   txt.x = NULL,
-  adj.x = 0,
+  adj.x = NULL,
   add = FALSE,
   tbmar = 0.2,
   smooth = 0,
@@ -45,7 +46,9 @@ phylo.spindles(
 
 \item{ages}{Optional matrix with lower and upper age limits for each spindle, formatted like the output of tree.ages() (most commonly the same calibration matrix used to time-calibrate the tree)}
 
-\item{xlimits}{Limits for plotting the on the x axis.}
+\item{xlimits}{Limits for plotting on the x axis.}
+
+\item{ylimits}{Limits for plotting on the y axis. If NULL (default) or not a numeric vector of length 2, the y limits are instead constructed from the tbmar parameter and the number of entries in the phylogeny or taxon list.}
 
 \item{res}{Temporal resolution of diversity estimation (if occ is a matrix or data.frame containing plotting statistics, this is ignored)}
 
@@ -71,9 +74,9 @@ phylo.spindles(
 
 \item{txt.y}{y axis alignment of tip labels}
 
-\item{txt.x}{x coordinates for plotting tip labels. Can be a single value applicable to all labels, or a vector of the same length as phylo0$tip.label}
+\item{txt.x}{x coordinates for plotting tip labels. Can be a single value applicable to all labels, or a vector of the same length as phylo0$tip.label. If NULL (default), the right margin of the plot is used with right-hand alignment for the text.}
 
-\item{adj.x}{Numeric value giving alignment on x axis, defaults to 0 (left-aligned) but can also be 0.5 (centered) or 1 (right-aligned).}
+\item{adj.x}{Numeric value giving alignment on x axis. If NULL (default) this defaults to 0 (left-aligned) but can also any other adjustment value (e.g. 0.5 for centered, 1 for right-aligned).}
 
 \item{add}{Logical indicating whether to add to an existing plot, in which case only the spindles are plotted on top of an existing phylogeny, or not, in which case the phylogeny is plotted along with the spindles.}
 

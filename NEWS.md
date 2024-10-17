@@ -1,3 +1,22 @@
+# paleoDiv 0.4.0
+* added three additional functions of general utility: violins() is a wrapper around viol() facilitating its use for general-purpose violin plots, jitterp() plots a simple jitter plot, and multijitter() is a wrapper around jitterp() analogous to violins() around viol(). These offer an advantage over ggplot2:geom_violin() and ggplot2::geom_jitter() when integration with base R graphics is needed or desired.
+
+# paleoDiv 0.3.5
+* changed handling of plot limits by phylo.spindles() to make use of the full available plotting space of the active device for the horizontal extent of plotted spindles
+
+# paleoDiv 0.3.4
+* added parameters for setting the country/continent and environment type when downloading pdb data
+
+# paleoDiv 0.3.3
+* added ylimits parameter to phylo.spindles() to specify vertical plot size is no phylogeny is plotted
+
+# paleoDiv 0.3.2
+* patched label placement issue in phylo.spindles() when txt.x==NULL
+
+
+# paleoDiv 0.3.1 (Release date: 2024-05-03)
+* patch for bug in tree.age.combine() (issue with underscores in taxon names, now automatically removed)
+
 # paleoDiv 0.3.0 (Release date: 2024-05-02)
 * added two new functions, tree.ages.spp() and tree.age.combine() to facilitate building matrices for time calibration of phylogenies
 

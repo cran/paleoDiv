@@ -20,6 +20,7 @@ viol(
   col = "black",
   lwd = 1,
   lty = 1,
+  na.rm = FALSE,
   ...
 )
 }
@@ -28,7 +29,7 @@ viol(
 
 \item{pos}{Position at which to place violin in the axis perpendicular to x. Defaults to 0}
 
-\item{x2}{Optional variable to use instead of x as input variable for the violin plot. If x2 is set, the function (default: density()) used to calculate the plotting statistic is run on x2 instead of x, but the results are plotted at the corresponding x values.}
+\item{x2}{Optional variable to override the use of x as input variable for the plotting statistic. If x2 is set, the function (default: density()) used to calculate the plotting statistic is run on x2 instead of x, but the results are plotted at the corresponding values of x.}
 
 \item{stat}{The plotting statistic. Details to the density() function, as in a standard violin plot, but can be overridden with another function that can take x or x2 as its first argument. Stat can also be a numeric vector of the same length as x, in which case the values in this vectors are used instead of the function output and plotted against x as an independent variable.}
 
@@ -53,6 +54,8 @@ viol(
 \item{lwd}{Line width for the plotted violin}
 
 \item{lty}{Line width for the plotted violin}
+
+\item{na.rm}{logical indicating whether to remove NA values from input data.}
 
 \item{...}{Other arguments to be passed on to function in parameter stat}
 }

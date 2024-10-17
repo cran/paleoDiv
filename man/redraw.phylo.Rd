@@ -36,7 +36,7 @@ redraw.phylo(
 \item{indices}{Optional indices which edges to redraw. Can be used to highlight specific edges in different color or style.}
 }
 \value{
-Plots a timescale on the currently active plot.
+Nothing (redraws selected edges of the phylogeny on the active plot device)
 }
 \description{
 Redraw the lines of a phylogenetic tree.

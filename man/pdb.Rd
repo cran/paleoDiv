@@ -10,7 +10,10 @@ pdb(
   what = "occs",
   full = FALSE,
   base = "https://paleobiodb.org/data1.2/",
-  file = "list.csv"
+  file = "list.csv",
+  cc = NULL,
+  envtype = NULL,
+  append_additional = NULL
 )
 }
 \arguments{
@@ -25,6 +28,12 @@ pdb(
 \item{base}{Character string containing base url to use. Defaults to https://paleobiodb.org/data1.2/. Entering "dev" serves as a shortcut to use https://dev.paleobiodb.org/data1.2/ instead (can sometimes be helpful if one of the two is unavailable).}
 
 \item{file}{Character string containing which file name to look for. Defaults to list.csv.}
+
+\item{cc}{Selection for continent (e.g. EUR for Europe, see paleobiodb.org documentation)}
+
+\item{envtype}{Selection for environment type (e.g. marine)}
+
+\item{append_additional}{Any additional character string to append to URL for pdb dataset}
 }
 \value{
 A data.frame() containing the downloaded paleobioDB dataset. The column "identified_name" will be copied into the column "tna", and (if what==occs) the columns "max_ma" and "min_ma" will be copied into the columns named "eag" and "lag" respectively, maintaining compatibility with the output of the deprecated package "paleobioDB" for those variable names.
