@@ -1,6 +1,6 @@
 Package: paleoDiv
 Title: Extracting and Visualizing Paleobiodiversity
-Version: 0.4.0
+Version: 0.4.6
 Authors@R: 
     person("Darius", "Nau", , "dariusnau@gmx.at", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0000-4343-6830"))
@@ -14,8 +14,8 @@ LazyData: true
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2024-10-17 13:12:02 UTC; suirad
+Packaged: 2025-03-23 19:42:16 UTC; suirad
 Author: Darius Nau [aut, cre] (<https://orcid.org/0009-0000-4343-6830>)
 Maintainer: Darius Nau <dariusnau@gmx.at>
 Repository: CRAN
-Date/Publication: 2024-10-17 13:30:04 UTC
+Date/Publication: 2025-03-23 19:50:02 UTC

@@ -21,6 +21,7 @@ multijitter(
   add = TRUE,
   ax = FALSE,
   srt = 45,
+  adj = c(1, 0),
   ...
 )
 }
@@ -56,6 +57,8 @@ multijitter(
 \item{ax}{whether to plot axes}
 
 \item{srt}{angle for categorical axis text rotation}
+
+\item{adj}{adjustment for axis labels (defaults to c(1,0), i.e. top right)}
 
 \item{...}{other arguments to pass on to jitterp() and plot()}
 }

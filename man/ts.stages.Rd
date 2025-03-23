@@ -14,7 +14,8 @@ ts.stages(
   adj.txt = c(0.5, 0.5),
   txt.y = mean,
   bw = FALSE,
-  update = NULL
+  update = NULL,
+  unit = "ma"
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ ts.stages(
 \item{bw}{Logical whether to plot in black and white (defaults to FALSE). If TRUE, time scale is drawn with a white background}
 
 \item{update}{Character string giving the filename of a .csv table for providing an updated timescale. If provided, the values for plotting the time scale are taken from the csv file instead of the internally provided values. Table must have columns named stage, bottom, top and col, giving the stage names, start time in ma, end time in ma and a valid color value, respectively.}
+
+\item{unit}{what unit of time to use. Defaults to "ma" (million years), other possible settings are "ka" or 1000 (for thousands of years), or "a", 1 or "years" for years.}
 }
 \value{
 Plots a timescale on the currently active plot.

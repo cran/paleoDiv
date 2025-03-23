@@ -42,7 +42,7 @@ curve(divdistr_(x,sptab_Stegosauria), xlim=c(200,100),ylim=c(-5,35), lwd=2,xlab=
 ts.stages(ylim=c(-6,-1),alpha=0.3,border=add.alpha("grey",0.3))
 ts.periods(ylim=c(-6,-1),alpha=0.0)
 
-## ----fig.height=4, fig.width=7------------------------------------------------
+## ----diversityviol,fig.height=4, fig.width=7----------------------------------
 viol(c(100:200), pos=0, stat=divdistr_, table=sptab_Stegosauria, lim=c(200,100),add=F,ylab="Species Diversity Estimate",xlab="Age [ma]")
 
 ## ----fig.height=5, fig.width=7------------------------------------------------

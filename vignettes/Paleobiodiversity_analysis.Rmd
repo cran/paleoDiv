@@ -90,7 +90,7 @@ ts.periods(ylim=c(-6,-1),alpha=0.0)
 
 …or as a spindle diagram, using the viol()-function provided with this package, by providing divdistr_ for its stat parameter, overriding its default binding to the density() function:
 
-```{r fig.height=4, fig.width=7}
+```{r diversityviol,fig.height=4, fig.width=7}
 viol(c(100:200), pos=0, stat=divdistr_, table=sptab_Stegosauria, lim=c(200,100),add=F,ylab="Species Diversity Estimate",xlab="Age [ma]")
 ```
 

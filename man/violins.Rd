@@ -8,6 +8,8 @@ violins(
   x,
   data = NULL,
   group = NULL,
+  wt = NULL,
+  adjustto1 = TRUE,
   horiz = FALSE,
   order = NULL,
   xlab = "",
@@ -23,6 +25,7 @@ violins(
   add = FALSE,
   ax = TRUE,
   srt = 45,
+  adj = c(1, 0),
   na.rm = TRUE,
   ...
 )
@@ -33,6 +36,10 @@ violins(
 \item{data}{data.frame object containing x and y}
 
 \item{group}{grouping variable}
+
+\item{wt}{optional vector of weights (default=NULL)}
+
+\item{adjustto1}{optional setting whether to adjust weights in each category to sum to 1 (default=TRUE)}
 
 \item{horiz}{logical indicating whether to plot horizontally}
 
@@ -63,6 +70,8 @@ violins(
 \item{ax}{whether to plot axes}
 
 \item{srt}{angle for categorical axis text rotation}
+
+\item{adj}{adjustment for axis labels (defaults to c(1,0), i.e. top right)}
 
 \item{na.rm}{logical indicating whether to tell viol() to remove NA values (defaults to TRUE)}
 
